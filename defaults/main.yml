@@ -1,0 +1,13 @@
+---
+nginx_proxy_image: jwilder/nginx-proxy:alpine
+nginx_proxy_container_name: nginx-proxy
+nginx_proxy_config_dir: /opt/docker/services/{{ nginx_proxy_container_name }}
+nginx_proxy_networks: []
+nginx_proxy_published_ports: []
+nginx_proxy_maxconn: 16384
+nginx_proxy_sysctls:
+  net.core.somaxconn: '{{ nginx_proxy_maxconn }}'
+nginx_proxy_ulimits:
+  - nofile:65536:65536
+nginx_proxy_params: |
+  server_tokens off;

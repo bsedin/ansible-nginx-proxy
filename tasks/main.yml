@@ -1,0 +1,31 @@
+---
+- name: ensure nginx_proxy directory
+  file:
+    dest: '{{ nginx_proxy_config_dir }}'
+    state: directory
+
+- name: ensure nginx_proxy vhost.d dir
+  file:
+    dest: '{{ nginx_proxy_config_dir }}/vhost.d'
+    state: directory
+
+- name: add nginx_proxy custom proxy config
+  template:
+    src: proxy.conf.j2
+    dest: '{{ nginx_proxy_config_dir }}/proxy.conf'
+
+- name: run nginx-proxy container
+  docker_container:
+    state: started
+    recreate: yes
+    name: '{{ nginx_proxy_container_name }}'
+    image: '{{ nginx_proxy_image }}'
+    restart_policy: always
+    published_ports: '{{ nginx_proxy_published_ports }}'
+    networks: '{{ nginx_proxy_networks }}'
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - '{{ nginx_proxy_config_dir }}/proxy.conf:/etc/nginx/conf.d/proxy.conf:ro'
+      - '{{ nginx_proxy_config_dir }}/vhost.d:/etc/nginx/vhost.d:ro'
+    ulimits: '{{ nginx_proxy_ulimits }}'
+    sysctls: '{{ nginx_proxy_sysctls }}'
